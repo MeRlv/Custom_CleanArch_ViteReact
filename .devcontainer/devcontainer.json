@@ -1,0 +1,15 @@
+{
+  "name": "Dotnet 9 Container",
+  "image": "dotnet9-env/ca-react-template:latest",
+  "runArgs": ["--name", "ca-react-template-dev"],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "omnisharp.useModernNet": true
+      },
+      "extensions": ["ms-dotnettools.csharp", "ms-azuretools.vscode-docker", "ms-dotnettools.csdevkit"]
+    }
+  },
+  "forwardPorts": [5000, 5001]
+}
