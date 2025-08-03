@@ -1,81 +1,93 @@
+using System;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using YourProjectName.Application.Common.Interfaces;
 using YourProjectName.Application.Common.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using YourProjectName.Domain.Constants;
+using YourProjectName.Domain.Entities;
+using YourProjectName.Infrastructure.Data;
 
-namespace YourProjectName.Infrastructure.Identity;
-
-public class IdentityService : IIdentityService
+namespace YourProjectName.Infrastructure.Identity
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
-    private readonly IAuthorizationService _authorizationService;
+  public class IdentityService : IIdentityService
+  {
+    private readonly ApplicationDbContext _context;
 
-    public IdentityService(
-        UserManager<ApplicationUser> userManager,
-        IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
-        IAuthorizationService authorizationService)
+    public IdentityService(ApplicationDbContext context)
     {
-        _userManager = userManager;
-        _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
-        _authorizationService = authorizationService;
+      _context = context;
     }
 
-    public async Task<string?> GetUserNameAsync(string userId)
+    public async Task<string?> GetUserNameAsync(int userId)
     {
-        var user = await _userManager.FindByIdAsync(userId);
+      var user = await _context.Users
+        .AsNoTracking()
+        .FirstOrDefaultAsync(u => u.Id == userId);
 
-        return user?.UserName;
+      return user?.Username;
     }
 
-    public async Task<(Result Result, string UserId)> CreateUserAsync(string userName, string password)
+    public async Task<bool> IsInRoleAsync(int userId, string role)
     {
-        var user = new ApplicationUser
-        {
-            UserName = userName,
-            Email = userName,
-        };
+      var user = await _context.Users
+        .AsNoTracking()
+        .FirstOrDefaultAsync(u => u.Id == userId);
 
-        var result = await _userManager.CreateAsync(user, password);
-
-        return (result.ToApplicationResult(), user.Id);
+      return user is not null
+        && string.Equals(user.Role, role, StringComparison.OrdinalIgnoreCase);
     }
 
-    public async Task<bool> IsInRoleAsync(string userId, string role)
+    public async Task<bool> AuthorizeAsync(int userId, string policyName)
     {
-        var user = await _userManager.FindByIdAsync(userId);
+      // Retrieve the user
+      var user = await _context.Users
+        .AsNoTracking()
+        .FirstOrDefaultAsync(u => u.Id == userId);
 
-        return user != null && await _userManager.IsInRoleAsync(user, role);
+      if (user is null)
+        return false;
+
+      // Apply business logic for each policy
+      return policyName switch
+      {
+        Policies.CanPurge => string.Equals(user.Role, Roles.Administrator, StringComparison.OrdinalIgnoreCase),
+        // Add other policies here if needed:
+        // Policies.CanEdit   => user.Role == Roles.Editor,
+        _ => false
+      };
     }
 
-    public async Task<bool> AuthorizeAsync(string userId, string policyName)
+    public async Task<(Result Result, int UserId)> CreateUserAsync(string userName)
     {
-        var user = await _userManager.FindByIdAsync(userId);
+      // Basic validation
+      if (string.IsNullOrWhiteSpace(userName))
+        return (Result.Failure(new[] { "Username is required." }), 0);
 
-        if (user == null)
-        {
-            return false;
-        }
+      // Check for uniqueness
+      var exists = await _context.Users
+        .AsNoTracking()
+        .AnyAsync(u => u.Username == userName);
+      if (exists)
+        return (Result.Failure(new[] { "Username already exists." }), 0);
 
-        var principal = await _userClaimsPrincipalFactory.CreateAsync(user);
+      // Create user with default role
+      var user = new User(userName, Roles.User);
+      _context.Users.Add(user);
+      await _context.SaveChangesAsync();
 
-        var result = await _authorizationService.AuthorizeAsync(principal, policyName);
-
-        return result.Succeeded;
+      return (Result.Success(), user.Id);
     }
 
-    public async Task<Result> DeleteUserAsync(string userId)
+    public async Task<Result> DeleteUserAsync(int userId)
     {
-        var user = await _userManager.FindByIdAsync(userId);
+      var user = await _context.Users.FindAsync(userId);
+      if (user is null)
+        return Result.Failure(new[] { "User not found." });
 
-        return user != null ? await DeleteUserAsync(user) : Result.Success();
+      _context.Users.Remove(user);
+      await _context.SaveChangesAsync();
+
+      return Result.Success();
     }
-
-    public async Task<Result> DeleteUserAsync(ApplicationUser user)
-    {
-        var result = await _userManager.DeleteAsync(user);
-
-        return result.ToApplicationResult();
-    }
+  }
 }

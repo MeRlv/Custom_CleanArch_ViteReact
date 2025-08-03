@@ -1,71 +1,61 @@
 ﻿# YourProjectName
 
-The project was generated using the [Clean.Architecture.Solution.Template](https://github.com/jasontaylordev/CleanArchitecture) version 9.0.12.
+*The project was generated using the [Clean.Architecture.Solution.Template](https://github.com/jasontaylordev/CleanArchitecture) version 9.0.12.*
 
-## Build
+## Application use cases
 
-Run `dotnet build -tl` to build the solution.
+Voir plus : `dotnet new ca-usecase --help`
 
-## Run
-
-To run the web application:
-
-```bash
-cd .\src\Web\
-dotnet watch run
+## Pré-requis
+```powershell
+cd ./src/Application
 ```
 
-Navigate to https://localhost:5001. The application will automatically reload if you change any of the source files.
-
-## Code Styles & Formatting
-
-The template includes [EditorConfig](https://editorconfig.org/) support to help maintain consistent coding styles for multiple developers working on the same project across various editors and IDEs. The **.editorconfig** file defines the coding styles applicable to this solution.
-
-## Code Scaffolding
-
-The template includes support to scaffold new commands and queries.
-
-Start in the `.\src\Application\` folder.
-
-Create a new command:
-
-```
+### Ajouter une commande
+```powershell
 dotnet new ca-usecase --name CreateTodoList --feature-name TodoLists --usecase-type command --return-type int
 ```
 
-Create a new query:
-
-```
+### Ajouter une requête
+```powershell
 dotnet new ca-usecase -n GetTodos -fn TodoLists -ut query -rt TodosVm
 ```
 
-If you encounter the error *"No templates or subcommands found matching: 'ca-usecase'."*, install the template and try again:
+## Entity Framework
 
-```bash
-dotnet new install Clean.Architecture.Solution.Template::9.0.12
+Pour gérer les migrations et la mise à jour de la base distante, vous pouvez utiliser les commandes **dotnet ef** en ciblant votre environnement de publication (Local, Dev, Prod).
+
+---
+
+### 1. Créer une migration de schéma
+
+```powershell
+dotnet ef migrations add <MIGRATION_NAME>
+  --project src/Infrastructure/Infrastructure.csproj
+  --startup-project src/Web/Web.csproj
 ```
+> Remplacez `MIGRATION_NAME` par le nom de votre migration (ce paramètre est requis).
 
-## Test
+---
 
-The solution contains unit, integration, functional, and acceptance tests.
+### 2. Mettre à jour une base distante
 
-To run the unit, integration, and functional tests (excluding acceptance tests):
-```bash
-dotnet test --filter "FullyQualifiedName!~AcceptanceTests"
+Pour appliquer les migrations sur la base distante configurée dans votre fichier `appsettings.{ENV}.json`, il faut définir l'environnement à utiliser pour connaître la base de donnée cible dans `DefaultConnection`.
+
+```powershell
+dotnet ef database update
+  --environment <ENV_PROFILE>
+  --project src/Infrastructure/Infrastructure.csproj
+  --startup-project src/Web/Web.csproj
 ```
+> Remplacez `ENV_PROFILE` par le nom de l'environnement cible (`Local`, `Dev`, `Prod`, etc.).
 
-To run the acceptance tests, first start the application:
+**Explications** :
 
-```bash
-cd .\src\Web\
-dotnet run
-```
+* `--project` cible l’assembly contenant votre `DbContext`.
+* `--startup-project` pointe vers le projet Web où se trouve `Program.CreateHostBuilder(...)`.
+* L’environnement (`Local`, `Dev`, `Prod`) détermine quel `appsettings.{ENV}.json` est chargé, et donc la chaîne de connexion utilisée.
 
-Then, in a new console, run the tests:
-```bash
-cd .\src\Web\
-dotnet test
-```
+### Gestion des utilisateurs
 
-## Help
-To learn more about the template go to the [project website](https://github.com/jasontaylordev/CleanArchitecture). Here you can find additional guidance, request new features, report a bug, and discuss the template with other users.
+Entity Framework Core propose déjà une gestion de l'authentification, implémenté par `IdentityDbContext<ApplicationUser>` et hérité par `ApplicationDbContext`.
