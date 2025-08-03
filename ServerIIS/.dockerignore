@@ -1,0 +1,6 @@
+*
+!build/**
+
+# Caches and logs
+*.log
+.vs/

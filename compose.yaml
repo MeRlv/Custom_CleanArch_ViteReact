@@ -1,0 +1,28 @@
+version: '1.0'
+
+services:
+  oracle-db:
+    build:
+      context: ./OracleDb
+      dockerfile: Dockerfile
+    container_name: oracle-db
+    environment:
+      ORACLE_PASSWORD: oracle
+      APP_USER: app
+      APP_USER_PASSWORD: app
+    ports:
+      - "1521:1521"
+    volumes:
+      - ./OracleDb/data:/opt/oracle/oradata
+
+  webapp:
+    build:
+      context: ./ServerIIS
+      dockerfile: Dockerfile
+    container_name: webapp
+    depends_on:
+      - oracle-db
+    ports:
+      - "8080:80"
+    environment:
+      ORACLE__CONNECTION__STRING: "User Id=app;Password=app;Data Source=oracle-db:1521/XEPDB1;"
