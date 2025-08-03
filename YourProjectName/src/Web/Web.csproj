@@ -69,21 +69,11 @@
     <Error Text="$(NSwagOutput)" Condition="'$(NSwagExitCode)' != '0'" />
   </Target>
 
-  <!-- Choose NPM build script depending on publish profile -->
-  <PropertyGroup Condition="'$(PublishProfile)' == 'Dev'">
-    <NpmBuildScript>build:dev</NpmBuildScript>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(PublishProfile)' == 'Prod'">
-    <NpmBuildScript>build:prd</NpmBuildScript>
-  </PropertyGroup>
-
   <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
     <!-- Install dependencies -->
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
-
     <!-- Run environment-specific build script -->
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run $(NpmBuildScript)" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:$(FrontEnvMode)" />
 
     <!-- Include the newly-built files in the publish output -->
     <ItemGroup>
