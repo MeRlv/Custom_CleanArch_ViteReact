@@ -17,7 +17,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
         builder
-            .HasSequence<int>("SEQ_USER", schema: "dbo")
+            .HasSequence<int>("SEQ_USER")
             .StartsAt(1)
             .IncrementsBy(1);
     }
