@@ -1,19 +1,25 @@
-version: '1.0'
-
 services:
   oracle-db:
-    build:
-      context: ./OracleDb
-      dockerfile: Dockerfile
+    image: gvenzl/oracle-free:latest
     container_name: oracle-db
-    environment:
-      ORACLE_PASSWORD: oracle
-      APP_USER: app
-      APP_USER_PASSWORD: app
+    cap_add:
+      - SYS_NICE
+      - SYS_TIME
     ports:
       - "1521:1521"
+    environment:
+      ORACLE_PASSWORD: oracle-pwd
+      APP_USER: app
+      APP_USER_PASSWORD: app
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
     volumes:
       - ./OracleDb/data:/opt/oracle/oradata
+      - ./OracleDb/logs:/opt/oracle/diag
 
   webapp:
     build:
@@ -21,8 +27,17 @@ services:
       dockerfile: Dockerfile
     container_name: webapp
     depends_on:
-      - oracle-db
+      oracle-db:
+        condition: service_healthy
     ports:
       - "8080:80"
     environment:
-      ORACLE__CONNECTION__STRING: "User Id=app;Password=app;Data Source=oracle-db:1521/XEPDB1;"
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "dotnet", "--info"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

@@ -10,6 +10,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
   public void Configure(EntityTypeBuilder<User> builder)
   {
     builder.Property(u => u.Id)
-           .HasDefaultValueSql("NEXT VALUE FOR dbo.UserSeq");
+           .HasDefaultValueSql("SEQ_USER.NEXTVAL");
   }
 }

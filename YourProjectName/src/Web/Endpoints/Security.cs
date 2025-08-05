@@ -15,7 +15,7 @@ namespace YourProjectName.Web.Endpoints;
 
 public class SecurityEndpoints : EndpointGroupBase
 {
-    public override string? GroupName => "/security";
+    public override string? GroupName => "security";
 
     public override void Map(RouteGroupBuilder group)
     {

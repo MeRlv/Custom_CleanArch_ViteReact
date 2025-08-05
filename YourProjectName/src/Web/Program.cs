@@ -2,6 +2,8 @@ using YourProjectName.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
+
 // Add services to the container.
 builder.AddKeyVaultIfConfigured();
 builder.AddApplicationServices();
@@ -14,6 +16,13 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     await app.InitialiseDatabaseAsync();
+
+    app.UseOpenApi();
+    app.UseSwaggerUi(settings =>
+    {
+        settings.Path         = "/swagger";           
+        settings.DocumentPath = "/swagger/v1/swagger.json";
+    });
 }
 else
 {
@@ -24,12 +33,6 @@ else
 app.UseHealthChecks("/health");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-app.UseSwaggerUi(settings =>
-{
-    settings.Path = "/api";
-    settings.DocumentPath = "/api/specification.json";
-});
 
 app.MapRazorPages();
 
