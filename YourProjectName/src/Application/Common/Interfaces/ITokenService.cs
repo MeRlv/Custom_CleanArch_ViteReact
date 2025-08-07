@@ -1,19 +1,16 @@
-// Application/Common/Interfaces/ITokenService.cs
-using YourProjectName.Application.Common.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using YourProjectName.Application.Common.Models;
 
-namespace YourProjectName.Application.Common.Interfaces;
-
-public interface ITokenService
+namespace YourProjectName.Application.Common.Interfaces
 {
-    /// <summary>
-    /// Génère un access + refresh token pour l'utilisateur donné (login par username).
-    /// </summary>
-    Task<(TokenModel AccessToken, TokenModel RefreshToken)> GenerateTokensAsync(string username);
-
-    /// <summary>
-    /// Tente de rafraîchir les tokens à partir d'un refresh token valide (rotation).
-    /// </summary>
-    /// <returns>Tuple de nouveaux tokens, ou null si refresh invalide.</returns>
-    Task<(TokenModel AccessToken, TokenModel RefreshToken)?> RefreshTokensAsync(string refreshToken);
+    public interface ITokenService
+    {
+        public TokenModel GenerateAccessTokenFromUsername(string username);
+        public TokenModel GenerateRefreshTokenFromUsername(string username);
+        public TokenModel ConsumeRefreshToken(string username, string refreshTokenValue);
+    }
 }

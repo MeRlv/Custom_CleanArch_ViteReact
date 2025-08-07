@@ -5,6 +5,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using YourProjectName.Application.Common.Interfaces;
+using YourProjectName.Application.Common.Exceptions;
 using YourProjectName.Domain.Entities;
 
 namespace YourProjectName.Application.Users.Queries.GetUserByUsername
@@ -42,14 +43,9 @@ namespace YourProjectName.Application.Users.Queries.GetUserByUsername
         {
             var user = await _context.Users
                 .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Username == request.Username, cancellationToken);
+                .FirstOrDefaultAsync(u => u.Username.ToLower() == request.Username.ToLower(), cancellationToken);
 
-            if (user is null)
-            {
-                throw new KeyNotFoundException($"User '{request.Username}' not found.");
-            }
-
-            return user;
+            return user ?? throw new Common.Exceptions.NotFoundException($"User '{request.Username}' not found.");
         }
     }
 }

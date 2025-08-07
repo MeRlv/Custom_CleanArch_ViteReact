@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Caching.Memory;
+using Ardalis.GuardClauses;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

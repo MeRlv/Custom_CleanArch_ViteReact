@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+cd "$(dirname "$0")"
 set -euo pipefail
 
 echo "🚀 Lancement de la suite complète de tests CRUD Oracle DB"

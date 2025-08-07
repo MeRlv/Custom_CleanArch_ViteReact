@@ -8,8 +8,12 @@
         "terminal.integrated.shell.linux": "/bin/bash",
         "omnisharp.useModernNet": true
       },
-      "extensions": ["ms-dotnettools.csharp", "ms-azuretools.vscode-docker", "ms-dotnettools.csdevkit"]
+      "extensions": [
+        "ms-dotnettools.csharp",
+        "ms-azuretools.vscode-docker",
+        "ms-dotnettools.csdevkit"
+      ]
     }
   },
-  "forwardPorts": [5000, 5001]
+  "forwardPorts": [5000, 3000]
 }

@@ -16,19 +16,19 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     await app.InitialiseDatabaseAsync();
-
-    app.UseOpenApi();
-    app.UseSwaggerUi(settings =>
-    {
-        settings.Path         = "/swagger";           
-        settings.DocumentPath = "/swagger/v1/swagger.json";
-    });
 }
 else
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseOpenApi();
+app.UseSwaggerUi(settings =>
+{
+    settings.Path         = "/swagger";           
+    settings.DocumentPath = "/swagger/v1/swagger.json";
+});
 
 app.UseHealthChecks("/health");
 app.UseHttpsRedirection();

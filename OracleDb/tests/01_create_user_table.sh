@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
+cd "$(dirname "$0")"
 set -euo pipefail
 
 # Source common functions
-source "$(dirname "$0")/common.sh"
+source common.sh
 
 # Initialize log if it doesn't exist
 if [[ ! -f "$LOG_FILE" ]]; then

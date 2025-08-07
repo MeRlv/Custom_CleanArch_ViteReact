@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+#body {
+  background-color: var(--surface-ground);
+  color: var(--primary-50);
+}

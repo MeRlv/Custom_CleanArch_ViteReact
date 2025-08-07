@@ -6,8 +6,8 @@ SERVICE_NAME="oracle-db"
 DB_USER="app"
 DB_PASS="app"
 HOST_PORT="1521"
-DB_SERVICE="XEPDB1"
-TABLE_NAME="test_users"
+DB_SERVICE="FREEPDB1"
+TABLE_NAME="Users"
 
 # Create output directory if it doesn't exist
 mkdir -p ./output

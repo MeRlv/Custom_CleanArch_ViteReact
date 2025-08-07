@@ -20,6 +20,7 @@ RUN dotnet new install Clean.Architecture.Solution.Template::9.0.12
 
 # Install EF Core CLI (dotnet-ef)
 RUN dotnet tool install --global dotnet-ef --version 9.0.0
+RUN dotnet tool install --global NSwag.ConsoleCore --version 14.2.0
 
 # Install Node.js & npm (LTS)
 RUN apt-get update \
@@ -31,5 +32,9 @@ RUN apt-get update \
 # Verify installations
 RUN dotnet --version \
  && dotnet ef --version \
+ && nswag version \
  && node --version \
  && npm --version
+
+
+EXPOSE 5000 3000
